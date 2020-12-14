@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace AppServer.JSON_GS
 {
-    public class Message
+    public class Message : GsObj<Message>
     {
         public const string VERSION = "JSON-GS 1.0";
         public string Version;
@@ -32,13 +32,15 @@ namespace AppServer.JSON_GS
             Data = data;
         }
 
-        public static Message FromJson(string json) => JsonConvert.DeserializeObject<Message>(json);
+        //public static Message FromJson(string json) => JsonConvert.DeserializeObject<Message>(json);
 
-        public static string ToJson(Message msg) => JsonConvert.SerializeObject(msg);
+        //public static string ToJson(Message msg) => JsonConvert.SerializeObject(msg);
 
-        public static string JsonGsErrorMessage(int error) => ToJson(new Message(error));
+        //public static string JsonGsErrorMessage(int error) => ToJson(new Message(error));
 
-        public string ToJson() => ToJson(this);
+        //public string ToJson() => ToJson(this);
+
+        public static string JsonGsErrorMessage(int error) => (new Message(error)).ToJson();
     }
 
 }
