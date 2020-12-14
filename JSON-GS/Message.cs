@@ -10,7 +10,7 @@ namespace AppServer.JSON_GS
         public string Header;       // -->"{JWT}"  <-- errorCode
         public Dictionary<string, string> Data;
 
-        //public Message()
+        public Message() {}
 
         public Message(int errorCode)
         {
