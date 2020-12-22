@@ -1,4 +1,9 @@
-﻿namespace AppServer
+﻿using System;
+using System.Collections.Generic;
+
+#nullable disable
+
+namespace AppServer
 {
     public partial class Device
     {
