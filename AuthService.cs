@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using System.Threading.Tasks;
 using System.Data.SqlClient;
 using System.Data;
+using MySql.Data.MySqlClient;
 
 namespace AppServer
 {
@@ -21,10 +22,10 @@ namespace AppServer
             {
                 if (msg.Data["Etoken"] == "")
                 {
-                    using var connection = new SqlConnection(Startup.AppConfiguration.GetConnectionString("Auth"));
+                    using var connection = new MySqlConnection(Startup.AppConfiguration.GetConnectionString("Auth"));
                     await connection.OpenAsync();
-                    SqlCommand command = new SqlCommand("sp_GetPlayerByDid", connection);
-                    command.Parameters.AddWithValue("DID", "asdasdas");
+                    MySqlCommand command = new MySqlCommand("_GetPlayerIdByDid", connection);
+                    command.Parameters.AddWithValue("DID", "aqaqaq111");
                     command.CommandType = CommandType.StoredProcedure;
                     var reader = await command.ExecuteReaderAsync();
                     if (!reader.HasRows)

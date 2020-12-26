@@ -13,6 +13,9 @@ namespace AppServer
         public Startup(IConfiguration config)
         {
             AppConfiguration = config;
+            //using (AuthContext db = new AuthContext());
+
+
         }
         public static IConfiguration AppConfiguration { get; set; }
 
