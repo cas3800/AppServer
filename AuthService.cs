@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Data.SqlClient;
 using System.Data;
 using MySql.Data.MySqlClient;
+using JWT;
 
 namespace AppServer
 {
@@ -20,16 +21,16 @@ namespace AppServer
 
             if (msg.Data.ContainsKey("Etoken") && msg.Data.ContainsKey("Dtoken"))
             {
+                using var connection = new MySqlConnection(Startup.AppConfiguration.GetConnectionString("Auth"));
+                await connection.OpenAsync();
                 if (msg.Data["Etoken"] == "")
                 {
-                    using var connection = new MySqlConnection(Startup.AppConfiguration.GetConnectionString("Auth"));
-                    await connection.OpenAsync();
                     MySqlCommand command = new MySqlCommand("_GetPlayerIdByDid", connection);
-                    command.Parameters.AddWithValue("DID", "aqaqaq111");
+                    command.Parameters.AddWithValue("DID", JsonWebToken.DecodeToObject<Dictionary<string,string>>(msg.Data["Dtoken"], "", false)["UI"]);
                     command.CommandType = CommandType.StoredProcedure;
                     var reader = await command.ExecuteReaderAsync();
                     if (!reader.HasRows)
-                        return (new Message(new Dictionary<string, string> 
+                        return (new Message(new Dictionary<string, string>
                             { {"Result", "RegistrationRequired" }, {"Server", Startup.AppConfiguration["AppServers:Reg"]} }
                         )).ToJson();
                     else

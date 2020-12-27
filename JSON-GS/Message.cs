@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace AppServer.JSON_GS
 {
-    public class Message : GsObj<Message>
+    public class Message : GsObject<Message>
     {
         public const string VERSION = "JSON-GS 1.0";
         public string Version;
