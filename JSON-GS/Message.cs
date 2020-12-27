@@ -32,14 +32,6 @@ namespace AppServer.JSON_GS
             Data = data;
         }
 
-        //public static Message FromJson(string json) => JsonConvert.DeserializeObject<Message>(json);
-
-        //public static string ToJson(Message msg) => JsonConvert.SerializeObject(msg);
-
-        //public static string JsonGsErrorMessage(int error) => ToJson(new Message(error));
-
-        //public string ToJson() => ToJson(this);
-
         public static string JsonGsErrorMessage(int error) => (new Message(error)).ToJson();
     }
 

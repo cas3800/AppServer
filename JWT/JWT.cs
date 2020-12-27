@@ -9,7 +9,8 @@ namespace JWT
     {
         HS256,
         HS384,
-        HS512
+        HS512,
+        GS
     }
 
     /// <summary>
@@ -32,7 +33,8 @@ namespace JWT
             {
                 { JwtHashAlgorithm.HS256, (key, value) => { using (var sha = new HMACSHA256(key)) { return sha.ComputeHash(value); } } },
                 { JwtHashAlgorithm.HS384, (key, value) => { using (var sha = new HMACSHA384(key)) { return sha.ComputeHash(value); } } },
-                { JwtHashAlgorithm.HS512, (key, value) => { using (var sha = new HMACSHA512(key)) { return sha.ComputeHash(value); } } }
+                { JwtHashAlgorithm.HS512, (key, value) => { using (var sha = new HMACSHA512(key)) { return sha.ComputeHash(value); } } },
+                { JwtHashAlgorithm.GS, (key, value) => { using (var rng = new RNGCryptoServiceProvider()) {var random = new Byte[32];  rng.GetBytes(random); return random; } } }
             };
         }
 

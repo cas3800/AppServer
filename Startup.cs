@@ -13,10 +13,8 @@ namespace AppServer
         public Startup(IConfiguration config)
         {
             AppConfiguration = config;
-            //using (AuthContext db = new AuthContext());
-
-
         }
+
         public static IConfiguration AppConfiguration { get; set; }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -31,14 +29,14 @@ namespace AppServer
 
             if (bool.Parse(AppConfiguration["AppServices:Init"])) app.UseEndpoints(endpoints =>
             {
-                endpoints.Map("/init", async context =>
+                endpoints.MapPost("/init", async context =>
                 {
                     await context.Response.WriteAsync(await InitService.Init(context));
                 });
             });
             if (bool.Parse(AppConfiguration["AppServices:Auth"])) app.UseEndpoints(endpoints =>
             {
-                endpoints.Map("/auth", async context =>
+                endpoints.MapPost("/auth", async context =>
                 {
                     await context.Response.WriteAsync(await AuthService.Auth(context));
                 });

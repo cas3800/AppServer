@@ -3,7 +3,6 @@ using AppServer.JSON_GS;
 using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
 using System.Threading.Tasks;
-using System.Data.SqlClient;
 using System.Data;
 using MySql.Data.MySqlClient;
 using JWT;
@@ -34,8 +33,22 @@ namespace AppServer
                             { {"Result", "RegistrationRequired" }, {"Server", Startup.AppConfiguration["AppServers:Reg"]} }
                         )).ToJson();
                     else
-                        // ToDo Генерация токена, сохранение в бд и отправка клиенту
-                        return Message.JsonGsErrorMessage(777);
+                    {
+                        reader.Read();
+                        var PlayerId = reader.GetInt32(0);
+                        reader.Close();
+                        var Token = JsonWebToken.Encode(new Dictionary<string, string> { { "ID", PlayerId.ToString() } }, "", JwtHashAlgorithm.GS);
+                        command = new MySqlCommand("_SetToken", connection);
+                        command.Parameters.AddWithValue("PlayerId", PlayerId);
+                        command.Parameters.AddWithValue("Token", Token);
+                        command.CommandType = CommandType.StoredProcedure;
+                        #pragma warning disable CS4014 // Так как этот вызов не ожидается, выполнение существующего метода продолжается до тех пор, пока вызов не будет завершен
+                        command.ExecuteNonQueryAsync();
+                        #pragma warning restore CS4014 // Так как этот вызов не ожидается, выполнение существующего метода продолжается до тех пор, пока вызов не будет завершен
+                        return (new Message(new Dictionary<string, string>
+                            { {"Token", Token } }
+                        )).ToJson();
+                    }
                 }
                 else
                 {
