@@ -11,12 +11,18 @@ namespace AppServer.JSON_GS
 {
     public class JsonGsTools
     {
-        private static async Task<string> ReadContextBody(HttpContext context)
+        private static async Task<string> ReadContextBodyAsync(HttpContext context)
         {
             using var reader = new StreamReader(context.Request.Body, Encoding.UTF8);
             return await reader.ReadToEndAsync();
         }
+        private static string ReadContextBody(HttpContext context)
+        {
+            using var reader = new StreamReader(context.Request.Body, Encoding.UTF8);
+            return reader.ReadToEnd();
+        }
 
-        public static async Task<Message> GetMessage(HttpContext context) => Message.FromJson(await ReadContextBody(context));
+        public static async Task<Message> GetMessageAsync(HttpContext context) => Message.FromJson(await ReadContextBodyAsync(context));
+        public static Message GetMessage(HttpContext context) => Message.FromJson(ReadContextBody(context));
     }
 }
