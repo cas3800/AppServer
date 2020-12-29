@@ -24,5 +24,10 @@ namespace AppServer.JSON_GS
 
         public static async Task<Message> GetMessageAsync(HttpContext context) => Message.FromJson(await ReadContextBodyAsync(context));
         public static Message GetMessage(HttpContext context) => Message.FromJson(ReadContextBody(context));
+
+        public static string ObjectToJson(object obj)
+        {
+            return JsonConvert.SerializeObject(obj);
+        }
     }
 }

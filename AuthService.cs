@@ -19,15 +19,17 @@ namespace AppServer
             if (msg.Version != Message.VERSION) return Message.JsonGsErrorMessage(100);
             if (!msg.Data.ContainsKey("Etoken") || !msg.Data.ContainsKey("Dtoken")) return Message.JsonGsErrorMessage(300);
 
+            var DtokenPayload = JsonWebToken.DecodeToObject<Dictionary<string, string>>(msg.Data["Dtoken"], "", false);
+            DtokenPayload.Add("IP", context.Connection.RemoteIpAddress.ToString());
+
             using var connection = new MySqlConnection(Startup.AppConfiguration.GetConnectionString("Auth"));
             connection.Open();
 
             int PlayerId = 0;
             if (msg.Data["Etoken"] != "")
             {
-                MySqlCommand command = new MySqlCommand("_GetPlayerByEtoken", connection);
+                MySqlCommand command = new MySqlCommand("_GetPlayerByEtoken", connection) { CommandType = CommandType.StoredProcedure };
                 command.Parameters.AddWithValue("Etoken", msg.Data["Etoken"]);
-                command.CommandType = CommandType.StoredProcedure;
                 var reader = command.ExecuteReader();
                 if (reader.HasRows)
                 {
@@ -37,6 +39,14 @@ namespace AppServer
                 }
                 else
                 {
+                    reader.Close();
+                    command = new MySqlCommand("_InsertEtokenFlood", connection) { CommandType = CommandType.StoredProcedure };
+                    command.Parameters.AddWithValue("Etoken", msg.Data["Etoken"]);
+                    command.Parameters.AddWithValue("Dtoken", msg.Data["Dtoken"]);
+                    command.Parameters.AddWithValue("LogInfo", JsonGsTools.ObjectToJson(DtokenPayload));
+#pragma warning disable CS4014 // Так как этот вызов не ожидается, выполнение существующего метода продолжается до тех пор, пока вызов не будет завершен
+                    command.ExecuteNonQueryAsync();
+#pragma warning restore CS4014 // Так как этот вызов не ожидается, выполнение существующего метода продолжается до тех пор, пока вызов не будет завершен
                     return (new Message(new Dictionary<string, string>
                             { {"Result", "EtokenError" } }
                     )).ToJson();
@@ -45,9 +55,8 @@ namespace AppServer
 
             if (PlayerId == 0)
             {
-                MySqlCommand command = new MySqlCommand("_GetPlayerByDevice", connection);
-                command.Parameters.AddWithValue("Device", JsonWebToken.DecodeToObject<Dictionary<string, string>>(msg.Data["Dtoken"], "", false)["UI"]);
-                command.CommandType = CommandType.StoredProcedure;
+                MySqlCommand command = new MySqlCommand("_GetPlayerByDevice", connection) { CommandType = CommandType.StoredProcedure };
+                command.Parameters.AddWithValue("Device", DtokenPayload["UI"]);
                 var reader = command.ExecuteReader();
                 if (reader.HasRows)
                 {
@@ -60,10 +69,10 @@ namespace AppServer
             if (PlayerId > 0)
             {
                 var Token = JsonWebToken.Encode(new Dictionary<string, string> { { "ID", PlayerId.ToString() } }, "", JwtHashAlgorithm.GS);
-                MySqlCommand command = new MySqlCommand("_SetToken", connection);
+                MySqlCommand command = new MySqlCommand("_SetToken", connection) { CommandType = CommandType.StoredProcedure };
                 command.Parameters.AddWithValue("PlayerId", PlayerId);
                 command.Parameters.AddWithValue("Token", Token);
-                command.CommandType = CommandType.StoredProcedure;
+                command.Parameters.AddWithValue("LogInfo", JsonGsTools.ObjectToJson(DtokenPayload));
 #pragma warning disable CS4014 // Так как этот вызов не ожидается, выполнение существующего метода продолжается до тех пор, пока вызов не будет завершен
                 command.ExecuteNonQueryAsync();
 #pragma warning restore CS4014 // Так как этот вызов не ожидается, выполнение существующего метода продолжается до тех пор, пока вызов не будет завершен
