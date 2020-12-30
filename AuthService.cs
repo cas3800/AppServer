@@ -28,7 +28,7 @@ namespace AppServer
             int PlayerId = 0;
             if (msg.Data["Etoken"] != "")
             {
-                MySqlCommand command = new MySqlCommand("_GetPlayerByEtoken", connection) { CommandType = CommandType.StoredProcedure };
+                var command = new MySqlCommand("_GetPlayerByEtoken", connection) { CommandType = CommandType.StoredProcedure };
                 command.Parameters.AddWithValue("Etoken", msg.Data["Etoken"]);
                 var reader = command.ExecuteReader();
                 if (reader.HasRows)
@@ -55,7 +55,7 @@ namespace AppServer
 
             if (PlayerId == 0)
             {
-                MySqlCommand command = new MySqlCommand("_GetPlayerByDevice", connection) { CommandType = CommandType.StoredProcedure };
+                var command = new MySqlCommand("_GetPlayerByDevice", connection) { CommandType = CommandType.StoredProcedure };
                 command.Parameters.AddWithValue("Device", DtokenPayload["UI"]);
                 var reader = command.ExecuteReader();
                 if (reader.HasRows)
@@ -69,7 +69,7 @@ namespace AppServer
             if (PlayerId > 0)
             {
                 var Token = JsonWebToken.Encode(new Dictionary<string, string> { { "ID", PlayerId.ToString() } }, "", JwtHashAlgorithm.GS);
-                MySqlCommand command = new MySqlCommand("_SetToken", connection) { CommandType = CommandType.StoredProcedure };
+                var command = new MySqlCommand("_SetToken", connection) { CommandType = CommandType.StoredProcedure };
                 command.Parameters.AddWithValue("PlayerId", PlayerId);
                 command.Parameters.AddWithValue("Token", Token);
                 command.Parameters.AddWithValue("LogInfo", JsonGsTools.ObjectToJson(DtokenPayload));

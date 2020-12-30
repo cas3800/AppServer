@@ -43,9 +43,9 @@ namespace AppServer
             });
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapGet("/reg/", async context =>
+                endpoints.MapPost("/reg/", async context =>
                 {
-                    await context.Response.WriteAsync("Hello Reg!");
+                    await context.Response.WriteAsync(await RegService.Reg(context));
                 });
             });
             app.UseEndpoints(endpoints =>
